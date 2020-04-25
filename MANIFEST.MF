@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Created-By: Vlad_kv
+Main-Class: hupercube.Main
