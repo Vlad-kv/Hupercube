@@ -6,7 +6,7 @@ import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Main {
-    public static void generate(int rank, int minValue, int maxValue, String filepath) throws IOException {
+    private static void generate(int rank, int minValue, int maxValue, String filepath) throws IOException {
         new File(filepath.substring(0, filepath.indexOf('/'))).mkdirs();
 
         System.out.println(rank + " " + minValue + " " + maxValue + "\n");
@@ -41,11 +41,11 @@ public class Main {
         }
     }
 
-    public static void makeDznFile(long targetValue, String input, String output) throws IOException {
+    private static void makeDznFile(long targetValue, String input, String output) throws IOException {
         makeDznFile(targetValue, input, output, true);
     }
 
-    public static void makeDznFile(long targetValue, String input, String output, boolean isForMinizinc) throws IOException {
+    private static void makeDznFile(long targetValue, String input, String output, boolean isForMinizinc) throws IOException {
         int rank, n;
         ArrayList<ArrayList<Integer>> graph = new ArrayList<>();
 
@@ -171,7 +171,7 @@ public class Main {
         return res;
     }
 
-    public static void search(String input, String tempDir, int timeLimitS, String oplSolver) throws IOException {
+    private static void search(String input, String tempDir, int timeLimitS, String oplSolver) throws IOException {
         int rank, n;
         ArrayList<ArrayList<Integer>> graph = new ArrayList<>();
 
@@ -199,6 +199,18 @@ public class Main {
                 }
             }
         }
+        String bestResult;
+        {
+            StringBuilder sb = new StringBuilder(maxRes + " [");
+            for (int i = 1; i <= n; i++) {
+                if (i > 1) {
+                    sb.append(", ");
+                }
+                sb.append(i);
+            }
+            bestResult = sb.toString();
+        }
+
         long leftLim = maxRes, rightLim = minRes;
 
         while (leftLim > rightLim) {
@@ -210,6 +222,7 @@ public class Main {
                 rightLim = mid + 1;
             } else {
                 maxRes = leftLim = Integer.valueOf(res.split(" ")[0]);
+                bestResult = res;
             }
             System.out.println(res);
         }
@@ -229,6 +242,7 @@ public class Main {
             }
             System.out.println(res);
         }
+        System.out.println("Possible values in [" + maxRes + ", " + minRes + "], best result : " + bestResult);
     }
 
     public static void main(String[] args) {

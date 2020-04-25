@@ -1,9 +1,6 @@
 package hupercube;
 
-import java.io.BufferedReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -16,6 +13,8 @@ public class Solver {
     private Boolean isDestroyed;
 
     public String solve(int timeLimitS, String tempDir, String minizincData, String oplSolver) throws IOException {
+        new File(tempDir).mkdirs();
+
         String output = "";
         String extension = (oplSolver.isEmpty()) ? ".mzn" : ".mod";
         String constraints = tempDir + "/constraints" + extension;
