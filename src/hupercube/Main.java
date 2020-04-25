@@ -199,6 +199,8 @@ public class Main {
                 }
             }
         }
+        minRes /= 2;
+        maxRes /= 2;
         String bestResult;
         {
             StringBuilder sb = new StringBuilder(maxRes + " [");
