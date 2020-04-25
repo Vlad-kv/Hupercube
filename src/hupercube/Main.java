@@ -131,7 +131,7 @@ public class Main {
         ArrayList<Integer> structure = new ArrayList<>();
         for (String val : output.substring(pos1 + 1, pos2).trim().split(" ")) {
             if (!val.trim().isEmpty()) {
-                structure.add(Integer.valueOf(val.trim()) - 1);
+                structure.add(Integer.valueOf(val.trim()));
             }
         }
         long res = 0;
@@ -139,11 +139,36 @@ public class Main {
         for (int i = 0; i < structure.size(); i++) {
             for (int j = 0; j < rank; j++) {
                 if ((i ^ (1 << j)) > i) {
-                    res += graph.get(structure.get(i)).get(structure.get(i ^ (1 << j)));
+                    res += graph.get(structure.get(i) - 1).get(structure.get(i ^ (1 << j)) - 1);
                 }
             }
         }
-        return res + " " + output.substring(pos1, pos2 + 1);
+        StringBuilder sb = new StringBuilder(res + " [");
+        for (int i = 0; i < structure.size(); i++) {
+            if (i > 0) {
+                sb.append(", ");
+            }
+            sb.append(structure.get(i));
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+
+    private static String searchStep(long maxRes, long minRes, long mid, String input, String tempDir, String oplSolver
+                                   , int timeLimitS, int rank, ArrayList<ArrayList<Integer>> graph) throws IOException {
+        long currentTimeMillis = System.currentTimeMillis();
+
+        System.out.println("Possible values in [" + maxRes + ", " + minRes + "], testing " + mid + " :");
+        makeDznFile(mid, input, tempDir + "/data.dzn", oplSolver.isEmpty());
+        Solver solver = new Solver();
+        String res = solver.solve(timeLimitS, tempDir, tempDir + "/data.dzn", oplSolver);
+        if (!oplSolver.isEmpty()) {
+            res = resolveResult(res, rank, graph);
+        }
+        long currentTimeMillis2 = System.currentTimeMillis();
+
+        System.out.print("  " + (currentTimeMillis2 - currentTimeMillis) + " ms : ");
+        return res;
     }
 
     public static void search(String input, String tempDir, int timeLimitS, String oplSolver) throws IOException {
@@ -179,28 +204,15 @@ public class Main {
         while (leftLim > rightLim) {
             long mid = (leftLim + rightLim) / 2;
 
-            System.out.println("Possible values in [" + leftLim + ", " + minRes + "], testing " + mid + " :");
-
-            makeDznFile(mid, input, tempDir + "/data.dzn", oplSolver.isEmpty());
-
-            Solver solver = new Solver();
-            String res = solver.solve(timeLimitS, tempDir, tempDir + "/data.dzn", oplSolver);
-
-//            System.out.println("\"" + res + "\"");
-
-            if (!oplSolver.isEmpty()) {
-                res = resolveResult(res, rank, graph);
-            }
+            String res = searchStep(maxRes, minRes, mid, input, tempDir, oplSolver, timeLimitS, rank, graph);
 
             if (res.contains("UNSATISFIABLE") || res.equals("TL")) {
                 rightLim = mid + 1;
             } else {
-                leftLim = Integer.valueOf(res.split(" ")[0]);
+                maxRes = leftLim = Integer.valueOf(res.split(" ")[0]);
             }
             System.out.println(res);
         }
-
-        long realRes = leftLim;
 
         leftLim++;
         rightLim = minRes;
@@ -208,17 +220,10 @@ public class Main {
         while (leftLim > rightLim) {
             long mid = (leftLim + rightLim) / 2;
 
-            System.out.println("Possible result in [" + realRes + ", " + rightLim + "], testing " + mid + " :");
+            String res = searchStep(maxRes, minRes, mid, input, tempDir, oplSolver, timeLimitS, rank, graph);
 
-            makeDznFile(mid, input, tempDir + "/data.dzn", oplSolver.isEmpty());
-
-            Solver solver = new Solver();
-            String res = solver.solve(timeLimitS, tempDir, tempDir + "/data.dzn", oplSolver);
-            if (!oplSolver.isEmpty()) {
-                res = resolveResult(res, rank, graph);
-            }
             if (res.contains("UNSATISFIABLE")) {
-                rightLim = mid + 1;
+                minRes = rightLim = mid + 1;
             } else {
                 leftLim = mid;
             }
