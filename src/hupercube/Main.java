@@ -225,6 +225,9 @@ public class Main {
             } else {
                 maxRes = leftLim = Integer.valueOf(res.split(" ")[0]);
                 bestResult = res;
+                try (FileWriter writer = new FileWriter(tempDir + "/result.txt")) {
+                    writer.write(bestResult);
+                }
             }
             System.out.println(res);
         }
